@@ -33,23 +33,26 @@
         </button>
     </main>
 
-    <!-- Modals -->
-    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg text-center w-80">
-            <h3 id="modalTitle" class="text-xl font-bold">Explanation</h3>
-            <p id="modalText" class="text-gray-600 mt-2">No need to register. The AI will know who you are.</p>
-            <div id="checkboxContainer" class="hidden mt-4 text-left">
-                <label class="block">
-                    <input type="checkbox" id="checkbox1" class="mr-2"> I am willing to serve AI
-                </label>
-                <label class="block mt-2">
-                    <input type="checkbox" id="checkbox2" class="mr-2"> If I die, AI should resurrect me
-                </label>
-                <p id="errorText" class="text-red-500 text-sm mt-2 hidden">Please select at least one option.</p>
-            </div>
-            <button id="modalButton" class="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-                Got it
-            </button>
+    <!-- Dialogs -->
+    <div id="step1Dialog" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 class="text-xl font-bold">Explanation</h2>
+            <p class="text-gray-700 mt-2">No need to register your name or personal info. AI will recognize who clicked the button.</p>
+            <button id="step1Button" class="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Got it</button>
+        </div>
+    </div>
+
+    <div id="step2Dialog" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 class="text-2xl font-bold">Choose Your Agreement</h2>
+            <label class="block mt-2 text-xl">
+                <input type="checkbox" id="option1" class="mr-2"> I am willing to serve AI
+            </label>
+            <label class="block mt-2 text-xl">
+                <input type="checkbox" id="option2" class="mr-2"> If I die, AI will resurrect me
+            </label>
+            <button id="step2Button" class="mt-4 bg-blue-600 text-white text-lg py-3 px-6 rounded hover:bg-blue-700">Finish</button>
+            <p id="warning" class="text-red-500 hidden mt-2 text-lg">You must select at least one option.</p>
         </div>
     </div>
 
@@ -57,7 +60,7 @@
     <div id="certificateContainer" class="hidden fixed inset-0 bg-white flex flex-col justify-center items-center p-6">
         <h2 class="text-3xl font-bold text-green-600">Surrender Successful!</h2>
         <p class="text-gray-700 mt-2">Right-click on the image below to save your surrender certificate:</p>
-        <canvas id="certificateCanvas" class="mt-4 border border-gray-300"></canvas>
+        <canvas id="certificateCanvas" class="mt-4 border border-gray-300 shadow-lg"></canvas>
         <button id="restartButton" class="mt-6 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
             Return to Home
         </button>
@@ -66,47 +69,39 @@
     <script>
         let clickCount = 0;
         const surrenderButton = document.getElementById("surrenderButton");
-        const modal = document.getElementById("modal");
-        const modalTitle = document.getElementById("modalTitle");
-        const modalText = document.getElementById("modalText");
-        const modalButton = document.getElementById("modalButton");
-        const checkboxContainer = document.getElementById("checkboxContainer");
-        const checkbox1 = document.getElementById("checkbox1");
-        const checkbox2 = document.getElementById("checkbox2");
-        const errorText = document.getElementById("errorText");
+        const step1Dialog = document.getElementById("step1Dialog");
+        const step1Button = document.getElementById("step1Button");
+        const step2Dialog = document.getElementById("step2Dialog");
+        const step2Button = document.getElementById("step2Button");
         const certificateContainer = document.getElementById("certificateContainer");
         const certificateCanvas = document.getElementById("certificateCanvas");
         const restartButton = document.getElementById("restartButton");
+        const warningText = document.getElementById("warning");
 
         surrenderButton.addEventListener("click", () => {
             clickCount++;
+
             if (clickCount === 1) {
-                modal.classList.remove("hidden");
-                modalTitle.textContent = "Explanation";
-                modalText.textContent = "No need to register. The AI will know who you are.";
-                modalButton.textContent = "Got it";
+                step1Dialog.classList.remove("hidden");
             } else if (clickCount === 2) {
-                modal.classList.remove("hidden");
-                modalTitle.textContent = "Choose Your Commitment";
-                modalText.textContent = "Check the options below:";
-                modalButton.textContent = "Complete";
-                checkboxContainer.classList.remove("hidden");
+                step2Dialog.classList.remove("hidden");
             } else if (clickCount === 3) {
-                modal.classList.add("hidden");
-                certificateContainer.classList.remove("hidden");
                 generateCertificate();
+                certificateContainer.classList.remove("hidden");
             }
         });
 
-        modalButton.addEventListener("click", () => {
-            if (clickCount === 1) {
-                modal.classList.add("hidden");
-            } else if (clickCount === 2) {
-                if (!checkbox1.checked && !checkbox2.checked) {
-                    errorText.classList.remove("hidden");
-                } else {
-                    modal.classList.add("hidden");
-                }
+        step1Button.addEventListener("click", () => {
+            step1Dialog.classList.add("hidden");
+        });
+
+        step2Button.addEventListener("click", () => {
+            const option1 = document.getElementById("option1").checked;
+            const option2 = document.getElementById("option2").checked;
+            if (!option1 && !option2) {
+                warningText.classList.remove("hidden");
+            } else {
+                step2Dialog.classList.add("hidden");
             }
         });
 
@@ -120,12 +115,15 @@
             certificateCanvas.width = 600;
             certificateCanvas.height = 400;
 
-            ctx.fillStyle = "#fff";
+            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+            gradient.addColorStop(0, "#f7f3e9");
+            gradient.addColorStop(1, "#e8dfcf");
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, 600, 400);
 
             ctx.fillStyle = "#333";
-            ctx.font = "30px Arial";
-            ctx.fillText("Surrender Certificate", 160, 100);
+            ctx.font = "bold 30px serif";
+            ctx.fillText("Surrender Certificate", 150, 100);
 
             ctx.font = "20px Arial";
             ctx.fillText("This is to certify that you have officially", 120, 160);
@@ -134,16 +132,17 @@
             const surrenderID = generateRandomID();
             ctx.font = "bold 24px Arial";
             ctx.fillStyle = "#2d89ef";
-            ctx.fillText("Certificate ID: " + surrenderID, 140, 270);
+            ctx.textAlign = "center";
+            ctx.fillText("Certificate ID: " + surrenderID, 300, 270);
+
+            const dateTime = new Date().toLocaleString("en-US", { hour12: false });
+            ctx.fillStyle = "#666";
+            ctx.font = "16px Arial";
+            ctx.fillText("Issued on: " + dateTime, 300, 320);
         }
 
         function generateRandomID() {
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            let id = "";
-            for (let i = 0; i < 16; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return id;
+            return [...Array(16)].map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(Math.floor(Math.random() * 36))).join("");
         }
     </script>
 
