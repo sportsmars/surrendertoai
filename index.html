@@ -56,11 +56,20 @@
         </div>
     </div>
 
+    <!-- Name Input Dialog (New) -->
+    <div id="nameDialog" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 class="text-2xl font-bold">Please Enter Your Name</h2>
+            <input id="userName" type="text" placeholder="Your Name" class="mt-4 p-2 border border-gray-300 rounded w-full" />
+            <button id="nameButton" class="mt-4 bg-blue-600 text-white text-lg py-3 px-6 rounded hover:bg-blue-700">Confirm</button>
+        </div>
+    </div>
+
     <!-- Certificate (Hidden by default) -->
     <div id="certificateContainer" class="hidden fixed inset-0 bg-white flex flex-col justify-center items-center p-6">
         <h2 class="text-3xl font-bold text-green-600">Surrender Successful!</h2>
         <p class="text-gray-700 mt-2">Right-click on the image below to save your surrender certificate:</p>
-        <canvas id="certificateCanvas" class="mt-4 border border-gray-300 shadow-lg"></canvas>
+        <canvas id="certificateCanvas" class="mt-4 border-4 border-solid border-sky-500 shadow-lg rounded-lg"></canvas>
         <button id="restartButton" class="mt-6 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
             Return to Home
         </button>
@@ -73,6 +82,9 @@
         const step1Button = document.getElementById("step1Button");
         const step2Dialog = document.getElementById("step2Dialog");
         const step2Button = document.getElementById("step2Button");
+        const nameDialog = document.getElementById("nameDialog");
+        const nameButton = document.getElementById("nameButton");
+        const userNameInput = document.getElementById("userName");
         const certificateContainer = document.getElementById("certificateContainer");
         const certificateCanvas = document.getElementById("certificateCanvas");
         const restartButton = document.getElementById("restartButton");
@@ -86,8 +98,7 @@
             } else if (clickCount === 2) {
                 step2Dialog.classList.remove("hidden");
             } else if (clickCount === 3) {
-                generateCertificate();
-                certificateContainer.classList.remove("hidden");
+                nameDialog.classList.remove("hidden");
             }
         });
 
@@ -105,40 +116,70 @@
             }
         });
 
+        nameButton.addEventListener("click", () => {
+            const userName = userNameInput.value.trim();
+            if (userName) {
+                nameDialog.classList.add("hidden");
+                generateCertificate(userName);
+                certificateContainer.classList.remove("hidden");
+            } else {
+                alert("Please enter your name.");
+            }
+        });
+
         restartButton.addEventListener("click", () => {
             clickCount = 0;
             certificateContainer.classList.add("hidden");
         });
 
-        function generateCertificate() {
+        function generateCertificate(userName) {
             const ctx = certificateCanvas.getContext("2d");
             certificateCanvas.width = 600;
             certificateCanvas.height = 400;
 
-            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
-            gradient.addColorStop(0, "#f7f3e9");
-            gradient.addColorStop(1, "#e8dfcf");
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 600, 400);
+            // Background pattern: add a simple texture pattern
+            const img = new Image();
+            img.src = 'https://www.transparenttextures.com/patterns/cubes.png'; // Pattern texture
+            img.onload = () => {
+                const pattern = ctx.createPattern(img, 'repeat');
+                ctx.fillStyle = pattern;
+                ctx.fillRect(0, 0, 600, 400);
 
-            ctx.fillStyle = "#333";
-            ctx.font = "bold 30px serif";
-            ctx.fillText("Surrender Certificate", 150, 100);
+                // Border for a more stylish look (changed to sky blue)
+                ctx.lineWidth = 8;
+                ctx.strokeStyle = "#87CEEB";  // Sky blue border
+                ctx.strokeRect(5, 5, 590, 390);
 
-            ctx.font = "20px Arial";
-            ctx.fillText("This is to certify that you have officially", 120, 160);
-            ctx.fillText("surrendered to AI and pledged allegiance.", 110, 190);
+                // Title centered
+                ctx.fillStyle = "#333";
+                ctx.font = "bold 30px serif";
+                ctx.textAlign = "center";
+                ctx.fillText("Surrender Certificate", 300, 100);
 
-            const surrenderID = generateRandomID();
-            ctx.font = "bold 24px Arial";
-            ctx.fillStyle = "#2d89ef";
-            ctx.textAlign = "center";
-            ctx.fillText("Certificate ID: " + surrenderID, 300, 270);
+                // Description centered
+                ctx.font = "20px Arial";
+                ctx.fillText("This is to certify that", 300, 160);
 
-            const dateTime = new Date().toLocaleString("en-US", { hour12: false });
-            ctx.fillStyle = "#666";
-            ctx.font = "16px Arial";
-            ctx.fillText("Issued on: " + dateTime, 300, 320);
+                // Display user name in bold blue, centered
+                ctx.fillStyle = "#1E90FF";  // Blue text
+                ctx.font = "bold 24px Arial";
+                ctx.fillText(userName, 300, 200);
+
+                // Bottom text centered
+                ctx.fillStyle = "#333";
+                ctx.font = "20px Arial";
+                ctx.fillText("has officially surrendered to AI and pledged allegiance.", 300, 230);
+
+                const surrenderID = generateRandomID();
+                ctx.font = "bold 24px Arial";
+                ctx.fillStyle = "#2d89ef";
+                ctx.fillText("Certificate ID: " + surrenderID, 300, 270);
+
+                const dateTime = new Date().toLocaleString("en-US", { hour12: false });
+                ctx.fillStyle = "#666";
+                ctx.font = "16px Arial";
+                ctx.fillText("Issued on: " + dateTime, 300, 320);
+            }
         }
 
         function generateRandomID() {
