@@ -132,55 +132,57 @@
             certificateContainer.classList.add("hidden");
         });
 
-        function generateCertificate(userName) {
-            const ctx = certificateCanvas.getContext("2d");
-            certificateCanvas.width = 600;
-            certificateCanvas.height = 400;
+       function generateCertificate(userName) {
+    const ctx = certificateCanvas.getContext("2d");
+    certificateCanvas.width = 600;
+    certificateCanvas.height = 400;
 
-            // Background pattern: add a simple texture pattern
-            const img = new Image();
-            img.src = 'https://www.transparenttextures.com/patterns/cubes.png'; // Pattern texture
-            img.onload = () => {
-                const pattern = ctx.createPattern(img, 'repeat');
-                ctx.fillStyle = pattern;
-                ctx.fillRect(0, 0, 600, 400);
+    // 创建背景图片对象
+    const background = new Image();
+    background.src = "https://raw.githubusercontent.com/sportsmars/surrendertoai/main/paperwenli.jpg"; // 确保使用 raw 链接
+    background.crossOrigin = "anonymous"; // 允许跨域加载图片
 
-                // Border for a more stylish look (changed to sky blue)
-                ctx.lineWidth = 8;
-                ctx.strokeStyle = "#87CEEB";  // Sky blue border
-                ctx.strokeRect(5, 5, 590, 390);
+    background.onload = function () {
+        // 绘制背景图片
+        ctx.drawImage(background, 0, 0, certificateCanvas.width, certificateCanvas.height);
 
-                // Title centered
-                ctx.fillStyle = "#333";
-                ctx.font = "bold 30px serif";
-                ctx.textAlign = "center";
-                ctx.fillText("Surrender Certificate", 300, 100);
+        // 绘制天蓝色边框
+        ctx.strokeStyle = "#87CEEB"; // 天蓝色
+        ctx.lineWidth = 10;
+        ctx.strokeRect(5, 5, certificateCanvas.width - 10, certificateCanvas.height - 10);
 
-                // Description centered
-                ctx.font = "20px Arial";
-                ctx.fillText("This is to certify that", 300, 160);
+        // 文字样式
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 30px serif";
+        ctx.textAlign = "center";
 
-                // Display user name in bold blue, centered
-                ctx.fillStyle = "#1E90FF";  // Blue text
-                ctx.font = "bold 24px Arial";
-                ctx.fillText(userName, 300, 200);
+        // 标题
+        ctx.fillText("Surrender Certificate", certificateCanvas.width / 2, 80);
 
-                // Bottom text centered
-                ctx.fillStyle = "#333";
-                ctx.font = "20px Arial";
-                ctx.fillText("has officially surrendered to AI and pledged allegiance.", 300, 230);
+        // 用户名
+        ctx.fillStyle = "#2d89ef"; // 蓝色
+        ctx.font = "bold 26px Arial";
+        ctx.fillText(userName, certificateCanvas.width / 2, 140);
 
-                const surrenderID = generateRandomID();
-                ctx.font = "bold 24px Arial";
-                ctx.fillStyle = "#2d89ef";
-                ctx.fillText("Certificate ID: " + surrenderID, 300, 270);
+        // 证书正文
+        ctx.fillStyle = "#333";
+        ctx.font = "20px Arial";
+        ctx.fillText("This is to certify that you have officially", certificateCanvas.width / 2, 190);
+        ctx.fillText("surrendered to AI and pledged allegiance.", certificateCanvas.width / 2, 220);
 
-                const dateTime = new Date().toLocaleString("en-US", { hour12: false });
-                ctx.fillStyle = "#666";
-                ctx.font = "16px Arial";
-                ctx.fillText("Issued on: " + dateTime, 300, 320);
-            }
-        }
+        // 证书 ID
+        const surrenderID = generateRandomID();
+        ctx.fillStyle = "#2d89ef"; // 蓝色
+        ctx.font = "bold 22px Arial";
+        ctx.fillText("Certificate ID: " + surrenderID, certificateCanvas.width / 2, 280);
+
+        // 日期
+        const dateTime = new Date().toLocaleString("en-US", { hour12: false });
+        ctx.fillStyle = "#666";
+        ctx.font = "18px Arial";
+        ctx.fillText("Issued on: " + dateTime, certificateCanvas.width / 2, 320);
+    };
+}
 
         function generateRandomID() {
             return [...Array(16)].map(() => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(Math.floor(Math.random() * 36))).join("");
